@@ -303,11 +303,10 @@ class _NoteListScreenState extends State<NoteListScreen> {
                           ),
                         ),
                         onChanged: (value) {
-                          setState(() {
-                            searchQuery = value;
-                            refreshNotes();
-                          });
+                          searchQuery = value;
+                          refreshNotes();
                         },
+
                       ),
                     ),
                   ),

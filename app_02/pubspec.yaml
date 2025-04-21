@@ -30,10 +30,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  intl: ^0.20.2
+
   google_maps_flutter: ^2.11.0
   image_picker: ^1.1.2
 
+  timezone: ^0.9.0
+  flutter_local_notifications: ^16.1.0
 
 
   flutter_colorpicker: ^1.1.0
@@ -43,6 +45,13 @@ dependencies:
 
 
 
+
+   # Thêm cho thông báo đẩy
+  google_fonts: ^4.0.3 # Thêm cho font Poppins
+  cached_network_image: ^3.2.3 # Thêm để tối ưu hình ảnh
+  intl: ^0.19.0
+  flutter_quill: ^9.5.8 # Thêm package để hỗ trợ rich text
+  file_picker: ^8.1.2 # Thêm package để chọn tệp PDF/tài liệu
   path_provider: ^2.1.3
   permission_handler: ^11.3.1
   flutter_dotenv: ^5.0.2
@@ -50,6 +59,7 @@ dependencies:
   firebase_storage: ^12.1.3
   shared_preferences: ^2.5.3
   connectivity_plus: ^6.0.5
+
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
@@ -79,10 +89,10 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/images/download.jpg
+    - assets/images/download.jpg
+    - assets/images/download.jpg
 
-    - assets/images/anh-nen-4k-cho-desktop_105907396.jpg
-    - assets/images/anh-nen-anime-4k-thien-nhien_062607131.jpg
-    - assets/images/anh-nen-cho-may-tinh-4k_105908365.jpg
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

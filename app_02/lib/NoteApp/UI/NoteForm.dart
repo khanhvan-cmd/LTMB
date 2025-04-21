@@ -1,6 +1,8 @@
+import 'package:intl/intl.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:app_02/NoteApp/Services/ApiService.dart';
 import 'package:app_02/NoteApp/Model/NoteModel.dart';
 
@@ -21,18 +23,7 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
   int? selectedPriority;
   String? selectedColor;
   String? _imagePath;
-
-  final Map<String, Color> colorOptions = {
-    'FF0000': Colors.red,
-    '00FF00': Colors.green,
-    '0000FF': Colors.blue,
-    'FFFF00': Colors.yellow,
-    'FFA500': Colors.orange,
-    'FF00FF': Colors.purple,
-    '00FFFF': Colors.cyan,
-    '800080': Colors.purple.shade800,
-    'FFC0CB': Colors.pink.shade200,
-  };
+  DateTime? _reminderTime;
 
   @override
   void initState() {
@@ -44,9 +35,10 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
       selectedColor = widget.note!.color;
       _tagsController.text = widget.note!.tags?.join(', ') ?? '';
       _imagePath = widget.note!.imagePath;
+      _reminderTime = widget.note!.reminderTime; // Initialize reminder time
     } else {
       selectedPriority = 1;
-      selectedColor = null;
+      selectedColor = 'FFFFFF'; // Default to white
     }
   }
 
@@ -57,6 +49,77 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
       setState(() {
         _imagePath = pickedFile.path;
       });
+    }
+  }
+
+  void _openColorPicker() {
+    Color initialColor = Colors.white;
+    if (selectedColor != null) {
+      try {
+        initialColor = Color(int.parse('FF$selectedColor', radix: 16));
+      } catch (e) {
+        // Handle invalid color code gracefully
+      }
+    }
+
+    Color? tempColor = initialColor;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Chọn màu'),
+        content: SingleChildScrollView(
+          child: BlockPicker(
+            pickerColor: initialColor,
+            onColorChanged: (Color color) {
+              tempColor = color;
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              if (tempColor != null) {
+                setState(() {
+                  selectedColor = tempColor!.value.toRadixString(16).substring(2).toUpperCase();
+                });
+                Navigator.of(context).pop();
+              }
+            },
+            child: const Text('Xác nhận'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _pickReminderTime() async {
+    // Show date picker
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: _reminderTime ?? DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+
+    if (pickedDate != null) {
+      // Show time picker after date is selected
+      final TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(_reminderTime ?? DateTime.now()),
+      );
+
+      if (pickedTime != null) {
+        setState(() {
+          _reminderTime = DateTime(
+            pickedDate.year,
+            pickedDate.month,
+            pickedDate.day,
+            pickedTime.hour,
+            pickedTime.minute,
+          );
+        });
+      }
     }
   }
 
@@ -79,7 +142,7 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.deepPurpleAccent, Colors.white], // Gradient nhẹ hơn
+            colors: [Colors.deepPurpleAccent, Colors.white],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -88,7 +151,7 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.9), // Nền trắng mờ
+              color: Colors.white.withOpacity(0.9),
               borderRadius: BorderRadius.circular(15),
             ),
             padding: const EdgeInsets.all(16.0),
@@ -158,48 +221,36 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  DropdownButtonFormField<String>(
-                    value: selectedColor,
-                    decoration: InputDecoration(
-                      labelText: 'Màu sắc',
-                      labelStyle: TextStyle(color: Colors.deepPurple.shade400),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
+                  GestureDetector(
+                    onTap: _openColorPicker,
+                    child: InputDecorator(
+                      decoration: InputDecoration(
+                        labelText: 'Màu sắc',
+                        labelStyle: TextStyle(color: Colors.deepPurple.shade400),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 20,
+                            height: 20,
+                            decoration: BoxDecoration(
+                              color: selectedColor != null
+                                  ? Color(int.parse('FF$selectedColor', radix: 16))
+                                  : Colors.grey.shade200,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            selectedColor != null ? '#$selectedColor' : 'Chọn màu',
+                            style: const TextStyle(color: Colors.black),
+                          ),
+                        ],
                       ),
                     ),
-                    items: [
-                      const DropdownMenuItem(
-                        value: null,
-                        child: Text('Không có màu'),
-                      ),
-                      ...colorOptions.entries.map((entry) {
-                        return DropdownMenuItem(
-                          value: entry.key,
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 20,
-                                height: 20,
-                                decoration: BoxDecoration(
-                                  color: entry.value,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Text(
-                                entry.key,
-                                style: const TextStyle(color: Colors.black),
-                              ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        selectedColor = value;
-                      });
-                    },
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
@@ -209,6 +260,31 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
                       labelStyle: TextStyle(color: Colors.deepPurple.shade400),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  GestureDetector(
+                    onTap: _pickReminderTime,
+                    child: InputDecorator(
+                      decoration: InputDecoration(
+                        labelText: 'Nhắc nhở',
+                        labelStyle: TextStyle(color: Colors.deepPurple.shade400),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.calendar_today, color: Colors.grey),
+                          const SizedBox(width: 10),
+                          Text(
+                            _reminderTime != null
+                                ? DateFormat('dd/MM/yyyy HH:mm').format(_reminderTime!)
+                                : 'Chọn thời gian nhắc nhở',
+                            style: const TextStyle(color: Colors.black),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -295,6 +371,7 @@ class _NoteFormScreenState extends State<NoteFormScreen> {
                             color: selectedColor,
                             isCompleted: widget.note?.isCompleted ?? false,
                             imagePath: _imagePath,
+                            reminderTime: _reminderTime, // Add reminder time
                           );
 
                           if (widget.note == null) {

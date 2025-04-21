@@ -3,13 +3,26 @@ import 'package:flutter/material.dart';
 import 'package:app_02/NoteApp/Model/NoteModel.dart';
 import 'package:app_02/NoteApp/UI/NoteForm.dart';
 
-class NoteDetailScreen extends StatelessWidget {
+class NoteDetailScreen extends StatefulWidget {
   final Note note;
 
   const NoteDetailScreen({super.key, required this.note});
 
+  @override
+  _NoteDetailScreenState createState() => _NoteDetailScreenState();
+}
+
+class _NoteDetailScreenState extends State<NoteDetailScreen> {
+  late Note _currentNote;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentNote = widget.note;
+  }
+
   Color getPriorityColor() {
-    switch (note.priority) {
+    switch (_currentNote.priority) {
       case 1:
         return Colors.green;
       case 2:
@@ -34,7 +47,6 @@ class NoteDetailScreen extends StatelessWidget {
         ),
         child: CustomScrollView(
           slivers: [
-            // AppBar
             SliverAppBar(
               expandedHeight: 200.0,
               floating: false,
@@ -42,7 +54,7 @@ class NoteDetailScreen extends StatelessWidget {
               backgroundColor: Colors.transparent,
               flexibleSpace: FlexibleSpaceBar(
                 title: Text(
-                  note.title,
+                  _currentNote.title,
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -52,9 +64,9 @@ class NoteDetailScreen extends StatelessWidget {
                 background: Stack(
                   fit: StackFit.expand,
                   children: [
-                    note.imagePath != null
+                    _currentNote.imagePath != null
                         ? Image.network(
-                      note.imagePath!,
+                      _currentNote.imagePath!,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
@@ -72,10 +84,7 @@ class NoteDetailScreen extends StatelessWidget {
                         : Container(
                       decoration: const BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [
-                            Colors.deepPurple,
-                            Colors.deepPurpleAccent
-                          ],
+                          colors: [Colors.deepPurple, Colors.deepPurpleAccent],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -103,26 +112,28 @@ class NoteDetailScreen extends StatelessWidget {
                     color: Colors.white,
                     size: 28,
                   ),
-                  onPressed: () {
-                    Navigator.push(
+                  onPressed: () async {
+                    final result = await Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => NoteFormScreen(note: note),
+                        builder: (context) => NoteFormScreen(note: _currentNote),
                       ),
                     );
+                    if (result != null && result is Note) {
+                      setState(() {
+                        _currentNote = result;
+                      });
+                    }
                   },
                 ),
               ],
             ),
-
-            // Nội dung chi tiết
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Mức độ ưu tiên và ngày tạo/sửa
                     Card(
                       elevation: 5,
                       shape: RoundedRectangleBorder(
@@ -142,7 +153,7 @@ class NoteDetailScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  'Ưu tiên: ${note.priority == 1 ? "Thấp" : note.priority == 2 ? "Trung bình" : "Cao"}',
+                                  'Ưu tiên: ${_currentNote.priority == 1 ? "Thấp" : _currentNote.priority == 2 ? "Trung bình" : "Cao"}',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -161,7 +172,7 @@ class NoteDetailScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  'Ngày tạo: ${note.createdAt.toString().split('.')[0]}',
+                                  'Ngày tạo: ${_currentNote.createdAt.toString().split('.')[0]}',
                                   style: const TextStyle(
                                     fontSize: 14,
                                     color: Colors.grey,
@@ -179,7 +190,7 @@ class NoteDetailScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  'Ngày sửa: ${note.modifiedAt.toString().split('.')[0]}',
+                                  'Ngày sửa: ${_currentNote.modifiedAt.toString().split('.')[0]}',
                                   style: const TextStyle(
                                     fontSize: 14,
                                     color: Colors.grey,
@@ -187,13 +198,31 @@ class NoteDetailScreen extends StatelessWidget {
                                 ),
                               ],
                             ),
+                            if (_currentNote.reminderTime != null) ...[
+                              const SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.alarm,
+                                    color: Colors.deepPurple,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Nhắc nhở: ${_currentNote.reminderTime.toString().split('.')[0]}',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ],
                         ),
                       ),
                     ),
                     const SizedBox(height: 16),
-
-                    // Nội dung
                     Card(
                       elevation: 5,
                       shape: RoundedRectangleBorder(
@@ -214,21 +243,15 @@ class NoteDetailScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              note.content,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                color: Colors.black87,
-                                height: 1.5,
-                              ),
+                              _currentNote.content,
+                              style: const TextStyle(fontSize: 16),
                             ),
                           ],
                         ),
                       ),
                     ),
                     const SizedBox(height: 16),
-
-                    // Thẻ (Tags)
-                    if (note.tags != null && note.tags!.isNotEmpty) ...[
+                    if (_currentNote.tags != null && _currentNote.tags!.isNotEmpty) ...[
                       Card(
                         elevation: 5,
                         shape: RoundedRectangleBorder(
@@ -251,7 +274,7 @@ class NoteDetailScreen extends StatelessWidget {
                               Wrap(
                                 spacing: 8.0,
                                 runSpacing: 8.0,
-                                children: note.tags!
+                                children: _currentNote.tags!
                                     .map(
                                       (tag) => Chip(
                                     label: Text(

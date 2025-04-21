@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:app_02/NoteApp/DatabaseHelper/DatabaseHelper.dart';
-import "package:app_02/NoteApp/Model/NoteModel.dart";
-import "package:app_02/NoteApp/UI/NoteDetailScreen.dart";
-import "package:app_02/NoteApp/UI/NoteForm.dart";
-import "package:app_02/NoteApp/widgets/NoteItem.dart";
-import "package:app_02/NoteApp/UI/NoteListScreen.dart";
+import 'package:app_02/NoteApp/Model/NoteModel.dart';
 
 class NoteDatabaseHelper {
   static final NoteDatabaseHelper instance = NoteDatabaseHelper._init();
@@ -23,7 +18,7 @@ class NoteDatabaseHelper {
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
-    return await openDatabase(path, version: 2, onCreate: _createDB, onUpgrade: _onUpgrade);
+    return await openDatabase(path, version: 3, onCreate: _createDB, onUpgrade: _onUpgrade);
   }
 
   Future _createDB(Database db, int version) async {
@@ -37,15 +32,18 @@ class NoteDatabaseHelper {
       modifiedAt TEXT NOT NULL,
       tags TEXT,
       color TEXT,
-      imagePath TEXT
+      imagePath TEXT,
+      reminderTime TEXT
     )
     ''');
   }
 
-  // Cập nhật cơ sở dữ liệu khi có thay đổi version
   Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await db.execute('ALTER TABLE notes ADD COLUMN imagePath TEXT');
+    }
+    if (oldVersion < 3) {
+      await db.execute('ALTER TABLE notes ADD COLUMN reminderTime TEXT');
     }
   }
 

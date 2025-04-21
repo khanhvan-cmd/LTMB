@@ -11,7 +11,8 @@ class Note {
   final List<String>? tags;
   final String? color;
   final bool isCompleted;
-  final String? imagePath; // Thêm thuộc tính imagePath
+  final String? imagePath;
+  final DateTime? reminderTime;
 
   Note({
     this.id,
@@ -25,6 +26,7 @@ class Note {
     this.color,
     this.isCompleted = false,
     this.imagePath,
+    this.reminderTime,
   });
 
   Map<String, dynamic> toMap() {
@@ -39,7 +41,8 @@ class Note {
       'tags': tags?.join(','),
       'color': color,
       'isCompleted': isCompleted ? 1 : 0,
-      'imagePath': imagePath, // Lưu đường dẫn hình ảnh
+      'imagePath': imagePath,
+      'reminderTime': reminderTime?.toIso8601String(),
     };
   }
 
@@ -55,7 +58,8 @@ class Note {
       tags: map['tags'] != null ? (map['tags'] as String).split(',') : null,
       color: map['color'],
       isCompleted: map['isCompleted'] == 1,
-      imagePath: map['imagePath'], // Lấy đường dẫn hình ảnh
+      imagePath: map['imagePath'],
+      reminderTime: map['reminderTime'] != null ? DateTime.parse(map['reminderTime']) : null,
     );
   }
 
@@ -71,6 +75,7 @@ class Note {
     String? color,
     bool? isCompleted,
     String? imagePath,
+    DateTime? reminderTime,
   }) {
     return Note(
       id: id ?? this.id,
@@ -84,11 +89,12 @@ class Note {
       color: color ?? this.color,
       isCompleted: isCompleted ?? this.isCompleted,
       imagePath: imagePath ?? this.imagePath,
+      reminderTime: reminderTime ?? this.reminderTime,
     );
   }
 
   @override
   String toString() {
-    return 'Note(id: $id, userId: $userId, title: $title, content: $content, priority: $priority, createdAt: $createdAt, modifiedAt: $modifiedAt, tags: $tags, color: $color, isCompleted: $isCompleted, imagePath: $imagePath)';
+    return 'Note(id: $id, userId: $userId, title: $title, content: $content, priority: $priority, createdAt: $createdAt, modifiedAt: $modifiedAt, tags: $tags, color: $color, isCompleted: $isCompleted, imagePath: $imagePath, reminderTime: $reminderTime)';
   }
 }

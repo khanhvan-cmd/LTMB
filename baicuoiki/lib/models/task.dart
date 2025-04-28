@@ -8,7 +8,7 @@ class Task {
   final DateTime createdAt;
   final DateTime updatedAt;
   final String? assignedTo;
-  final String createdBy;
+  final String userId; // sửa createdBy thành userId
   final String? category;
   final List<String>? attachments;
   final bool completed;
@@ -23,15 +23,48 @@ class Task {
     required this.createdAt,
     required this.updatedAt,
     this.assignedTo,
-    required this.createdBy,
+    required this.userId,
     this.category,
     this.attachments,
     required this.completed,
   });
 
+  // ✅ Thêm phương thức copyWith
+  Task copyWith({
+    String? id,
+    String? title,
+    String? description,
+    String? status,
+    int? priority,
+    DateTime? dueDate,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    String? assignedTo,
+    String? userId,
+    String? category,
+    List<String>? attachments,
+    bool? completed,
+  }) {
+    return Task(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      status: status ?? this.status,
+      priority: priority ?? this.priority,
+      dueDate: dueDate ?? this.dueDate,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      assignedTo: assignedTo ?? this.assignedTo,
+      userId: userId ?? this.userId,
+      category: category ?? this.category,
+      attachments: attachments ?? this.attachments,
+      completed: completed ?? this.completed,
+    );
+  }
+
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
-      id: json['_id'] ?? '', // Backend trả về _id thay vì id
+      id: json['id'] ?? '',
       title: json['title'] ?? '',
       description: json['description'] ?? '',
       status: json['status'] ?? 'To do',
@@ -40,7 +73,7 @@ class Task {
       createdAt: DateTime.parse(json['createdAt'] ?? DateTime.now().toIso8601String()),
       updatedAt: DateTime.parse(json['updatedAt'] ?? DateTime.now().toIso8601String()),
       assignedTo: json['assignedTo'],
-      createdBy: json['createdBy'] ?? '',
+      userId: json['userId'] ?? '',
       category: json['category'],
       attachments: json['attachments'] != null ? List<String>.from(json['attachments']) : null,
       completed: json['completed'] ?? false,
@@ -57,30 +90,10 @@ class Task {
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
       'assignedTo': assignedTo,
-      'createdBy': createdBy,
+      'userId': userId,
       'category': category,
       'attachments': attachments,
       'completed': completed,
     };
-  }
-}
-
-extension TaskExtension on Task {
-  Task copyWith({String? status, bool? completed}) {
-    return Task(
-      id: this.id,
-      title: this.title,
-      description: this.description,
-      status: status ?? this.status,
-      priority: this.priority,
-      dueDate: this.dueDate,
-      createdAt: this.createdAt,
-      updatedAt: this.updatedAt,
-      assignedTo: this.assignedTo,
-      createdBy: this.createdBy,
-      category: this.category,
-      attachments: this.attachments,
-      completed: completed ?? this.completed,
-    );
   }
 }

@@ -68,7 +68,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             Text('Tạo lúc: ${DateFormat.yMd().format(widget.task.createdAt)}'),
             Text('Cập nhật lúc: ${DateFormat.yMd().format(widget.task.updatedAt)}'),
             Text('Giao cho: ${widget.task.assignedTo ?? 'Chưa giao'}'),
-            Text('Người tạo: ${widget.task.createdBy}'),
+            Text('Người tạo: ${widget.task.userId}'),
+
             Text('Danh mục: ${widget.task.category ?? 'Không có'}'),
             SizedBox(height: 16),
             Text('Đính kèm:', style: TextStyle(fontWeight: FontWeight.bold)),

@@ -36,8 +36,8 @@ class TaskService {
       throw Exception('User not authenticated');
     }
 
-    if (task.title.isEmpty) {
-      throw Exception('Title is required');
+    if (task.title.isEmpty || task.userId.isEmpty) {
+      throw Exception('Title and userId are required');
     }
 
     final response = await http.post(
@@ -56,6 +56,7 @@ class TaskService {
         'category': task.category,
         'attachments': task.attachments,
         'completed': task.completed,
+        'userId': task.userId, // thêm dòng này
       }),
     );
 
@@ -65,6 +66,7 @@ class TaskService {
       throw Exception('Failed to add task: ${response.body}');
     }
   }
+
 
   Future<Task?> updateTask(Task task) async {
     final token = await _getToken();

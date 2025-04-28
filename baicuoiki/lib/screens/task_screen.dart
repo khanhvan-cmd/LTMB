@@ -581,12 +581,13 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
               createdAt: widget.task?.createdAt ?? DateTime.now(),
               updatedAt: DateTime.now(),
               assignedTo: _assignedTo,
-              createdBy: widget.userId,
+              userId: widget.userId, // sửa ở đây (trước là createdBy)
               category: _category,
               attachments: _attachments,
               completed: _status == 'Done',
             );
             Navigator.pop(context, task);
+
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Color(0xFF6A82FB),
